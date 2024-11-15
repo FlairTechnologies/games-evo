@@ -152,7 +152,7 @@ const QuizGame = () => {
   if (showResults) {
     return (
       <>
-        <Navbar theme={""} color={"black"} />
+        <Navbar theme={"light"} color={""} />
         <QuizResults
           totalScore={totalScore}
           totalQuestions={questions.length}
@@ -186,14 +186,14 @@ const QuizGame = () => {
             </CardTitle>
           </CardHeader>
 
-          <div className="md:w-[90%]">
+          <div className="md:w-[90%] md:py-10 md:flex md:flex-col md:items-center md:justify-between">
             <QuizTimer timeLeft={timeLeft} duration={TIMER_DURATION} />
 
-            <CardTitle className="text-2xl font-bold text-center hidden md:block md:mb-7 md:mt-4">
+            <div className="text-2xl font-bold text-center hidden md:block  mb-7 mt-[50px] w-[90%]">
               {questions[currentQuestion].question}
-            </CardTitle>
+            </div>
 
-            <CardContent className="space-y-6 md:mt-4">
+            <CardContent className="space-y-6 md:w-full">
               <QuizOptions
                 options={questions[currentQuestion].options}
                 selectedAnswer={
