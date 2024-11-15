@@ -33,14 +33,3 @@ const QuizOptions = ({ options, selectedAnswer, onAnswerSelect }) => {
 };
 
 export default QuizOptions;
-
-// <div
-//   key={option.id}
-//   className=""
-// >
-//   <RadioGroupItem
-//     value={option.id}
-//     id={option.id}
-//     className="border-2 border-gray-300"
-//   />
-// </div>

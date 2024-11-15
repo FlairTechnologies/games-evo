@@ -1,4 +1,5 @@
 import Leadership from "../../assets/images/leadership-bg.jpg";
+import Navbar from "../../components/custom/navbar";
 import {
   Card,
   CardContent,
@@ -11,9 +12,7 @@ import React from "react";
 const maskNumber = (number) => {
   const str = number.toString();
   // Mask everything except the first 3 digits and last 4 digits
-  return str.length > 7
-    ? str.slice(0, 3) + "***" + str.slice(-4)
-    : str;
+  return str.length > 7 ? str.slice(0, 3) + "***" + str.slice(-4) : str;
 };
 
 const Leaderboard = () => {
@@ -33,7 +32,9 @@ const Leaderboard = () => {
         className="absolute bottom-0 left-0 right-0 h-full w-full"
       />
 
-      <Card className="w-full max-w-2xl bg-white/90 backdrop-blur-sm relative">
+      <Navbar theme={"light"}/>
+
+      <Card className="w-full max-w-2xl bg-white/90 backdrop-blur-sm relative mt-8">
         <CardHeader className="card-header rounded-tr-xl rounded-tl-xl p-0">
           <div className="bg-black/50 w-full h-full rounded-tr-xl rounded-tl-xl grid place-content-center">
             <h1 className="text-[64px] font-bold text-white">Leaderboard</h1>

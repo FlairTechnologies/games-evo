@@ -5,6 +5,7 @@ import QuizOptions from "../../components/custom/Quiz/QuizOptions";
 import QuizProgress from "../../components/custom/Quiz/QuizProgress";
 import QuizResults from "../../components/custom/Quiz/QuizResults";
 import QuizTimer from "../../components/custom/Quiz/QuizTimer";
+import Navbar from "../../components/custom/navbar";
 import {
   Card,
   CardContent,
@@ -150,53 +151,69 @@ const QuizGame = () => {
 
   if (showResults) {
     return (
-      <QuizResults
-        totalScore={totalScore}
-        totalQuestions={questions.length}
-        onRestart={handleRestart}
-      />
+      <>
+        <Navbar theme={""} color={"black"} />
+        <QuizResults
+          totalScore={totalScore}
+          totalQuestions={questions.length}
+          onRestart={handleRestart}
+        />
+      </>
     );
   }
 
   return (
-    <div className="min-h-screen bg-pink-100 flex items-center justify-center p-4">
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute bottom-0 left-0 right-0 h-1/2">
-          <div className="absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-t from-pink-200 to-transparent" />
-          <div className="absolute bottom-0 left-0 right-0 h-48 bg-red-900/20" />
-        </div>
-      </div>
-
-      <Card className="w-full max-w-2xl bg-white/90 backdrop-blur-sm relative">
-        <CardHeader>
-          <div className="w-full flex items-center justify-between mb-4">
-            <QuizProgress
-              questions={questions}
-              currentQuestion={currentQuestion}
-            />
-            <QuizTimer timeLeft={timeLeft} duration={TIMER_DURATION} />
+    <>
+      <div className="min-h-screen bg-pink-100 flex items-center justify-center p-4">
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute bottom-0 left-0 right-0 h-1/2">
+            <div className="absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-t from-pink-200 to-transparent" />
+            <div className="absolute bottom-0 left-0 right-0 h-48 bg-red-900/20" />
           </div>
+        </div>
 
-          <CardTitle className="text-2xl font-bold text-center">
-            {questions[currentQuestion].question}
-          </CardTitle>
-        </CardHeader>
+        <Card className="w-full max-w-2xl flex flex-col md:flex-row items-center justify-between bg-white/90 backdrop-blur-sm relative mt-10">
+          <CardHeader>
+            <div className="w-full flex items-center justify-between mb-4 md:mb-0">
+              <QuizProgress
+                questions={questions}
+                currentQuestion={currentQuestion}
+              />
+            </div>
 
-        <CardContent className="space-y-6 mt-7">
-          <QuizOptions
-            options={questions[currentQuestion].options}
-            selectedAnswer={answers[questions[currentQuestion].id]?.answerId}
-            onAnswerSelect={handleAnswer}
-          />
-        </CardContent>
-        <QuizNavigation
-          onPrevious={handlePrevious}
-          onNext={handleNext}
-          isFirstQuestion={currentQuestion === 0}
-          disabled={disabled}
-        />
-      </Card>
-    </div>
+            <CardTitle className="text-2xl font-bold text-center md:hidden">
+              {questions[currentQuestion].question}
+            </CardTitle>
+          </CardHeader>
+
+          <div className="md:w-[90%]">
+            <QuizTimer timeLeft={timeLeft} duration={TIMER_DURATION} />
+
+            <CardTitle className="text-2xl font-bold text-center hidden md:block md:mb-7 md:mt-4">
+              {questions[currentQuestion].question}
+            </CardTitle>
+
+            <CardContent className="space-y-6 md:mt-4">
+              <QuizOptions
+                options={questions[currentQuestion].options}
+                selectedAnswer={
+                  answers[questions[currentQuestion].id]?.answerId
+                }
+                onAnswerSelect={handleAnswer}
+              />
+            </CardContent>
+            <div className="md:block md:w-[91%] mx-auto">
+              <QuizNavigation
+                onPrevious={handlePrevious}
+                onNext={handleNext}
+                isFirstQuestion={currentQuestion === 0}
+                disabled={disabled}
+              />
+            </div>
+          </div>
+        </Card>
+      </div>
+    </>
   );
 };
 
