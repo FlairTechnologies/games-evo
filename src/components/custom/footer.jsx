@@ -95,6 +95,7 @@ const Footer = () => {
           </div>
         ))}
       </div>
+      <p className="text-sm mb-2 font-light">Flair Technologies Limited</p>
     </footer>
   );
 };
