@@ -9,6 +9,7 @@ import "./index.css";
 import Game from "./pages/(main)/Game";
 import Leadership from "./pages/(main)/Leaderboard";
 import Auth from "./pages/authentication/Auth";
+import Footer from "./components/custom/footer";
 
 const App = () => {
   return (
@@ -23,9 +24,7 @@ const App = () => {
         </Routes>
       </BrowserRouter>
 
-      {/* <footer className="h-[300px] w-full">
-      Hiiiii
-    </footer> */}
+      <Footer/>
     </>
   );
 };

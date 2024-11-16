@@ -5,23 +5,23 @@ import { ArrowLeft, ArrowRight } from 'lucide-react';
 
 const QuizNavigation = ({ disabled, onNext, isFirstQuestion }) => {
   return (
-    <div className="flex items-center justify-between pt-4">
-      {/* <Button
-        onClick={onPrevious}
-        disabled={isFirstQuestion}
-        className="flex items-center w-1/2 gap-2 h-[60px] bg-gray-200 hover:bg-gray-300 text-gray-700"
+    <div className="flex justify-between items-center mt-6">
+      <Button
+        variant="outline"
+        onClick={() => window.history.back()}
+        disabled={disabled}
+        className={'invisible'}
       >
-        <ArrowLeft className="w-5 h-5" />
+        <ArrowLeft className="w-4 h-4 mr-2" />
         Previous
-      </Button> */}
-
+      </Button>
+      
       <Button
         onClick={onNext}
-        className={`flex items-center w-full rounded-xl mt-10 gap-2 h-[60px] bg-[#FE6249] hover:bg-[#FD624B] text-white text-base ${disabled === true ? "bg-gray-300 text-gray-600" : ""}`}
         disabled={disabled}
       >
         Next
-        <ArrowRight className="w-5 h-5" />
+        <ArrowRight className="w-4 h-4 ml-2" />
       </Button>
     </div>
   );

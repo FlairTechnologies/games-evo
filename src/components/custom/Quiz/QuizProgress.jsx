@@ -3,27 +3,27 @@ import React from 'react';
 
 const QuizProgress = ({ questions, currentQuestion }) => {
   return (
-    <div className="flex items-center justify-between mb-6 w-[80%]">
+    <div className="flex items-center justify-center space-x-2 mb-6">
       {questions.map((q, idx) => (
-        <div key={q.id} className="flex items-center">
+        <React.Fragment key={q.id}>
           <div
             className={`
-              w-8 h-8 rounded-full flex items-center justify-center
-              ${idx <= currentQuestion ? "bg-[#FE6249] text-white" : "bg-gray-300 text-gray-600"}
-              ${idx === currentQuestion ? "w-12 h-12 text-xl" : ""}
-              transition-all duration-300
+              w-3 h-3 rounded-full transition-all duration-200
+              ${idx === currentQuestion
+                ? 'bg-[#FF8A6C] scale-125'
+                : idx < currentQuestion
+                ? 'bg-orange-200'
+                : 'bg-gray-200'
+              }
             `}
-          >
-            {q.id}
-          </div>
+          />
           {idx < questions.length - 1 && (
-            <div
-              className={`h-0.5 w-[100px] ml-3 ${
-                idx < currentQuestion ? "bg-[#FE6249]" : "bg-gray-300"
-              }`}
-            />
+            <div className={`
+              w-12 h-0.5
+              ${idx < currentQuestion ? 'bg-orange-200' : 'bg-gray-200'}
+            `} />
           )}
-        </div>
+        </React.Fragment>
       ))}
     </div>
   );
