@@ -85,7 +85,7 @@ const Auth = () => {
       
       // Animate out before navigation
       setShowContent(false);
-      setTimeout(() => navigate("/quiz"), 300);
+      setTimeout(() => navigate("/start-quiz"), 300);
       
     } catch (error) {
       toast({

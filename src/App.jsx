@@ -5,11 +5,12 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "./index.css";
+import Footer from "./components/custom/footer";
 // Import your pages
 import Game from "./pages/(main)/Game";
 import Leadership from "./pages/(main)/Leaderboard";
+import QuizStart from "./pages/(main)/StartQuiz";
 import Auth from "./pages/authentication/Auth";
-import Footer from "./components/custom/footer";
 
 const App = () => {
   return (
@@ -20,11 +21,12 @@ const App = () => {
         <Routes>
           <Route path="/quiz" element={<Game />} />
           <Route path="/leaderboard" element={<Leadership />} />
+          <Route path="/start-quiz" element={<QuizStart />} />
           <Route path="/" element={<Auth />} />
         </Routes>
       </BrowserRouter>
 
-      <Footer/>
+      <Footer />
     </>
   );
 };
