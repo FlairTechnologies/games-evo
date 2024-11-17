@@ -1,7 +1,7 @@
 import LogoLight from "../../assets/images/logo-light.png";
 import Logo from "../../assets/images/logo.png";
 import React, { useState, useEffect } from 'react';
-import { X, Home, Info, Phone, Mail, ChevronRight } from 'lucide-react';
+import { X, Home, Info, Phone, Mail, ChevronRight, BarChart4 } from 'lucide-react';
 
 const Navbar = ({ theme, color }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -23,8 +23,8 @@ const Navbar = ({ theme, color }) => {
   const navItems = [
     { icon: <Home size={20} />, label: "Home", href: "#home" },
     { icon: <Info size={20} />, label: "About", href: "#about" },
-    { icon: <Phone size={20} />, label: "Services", href: "#services" },
-    { icon: <Mail size={20} />, label: "Contact", href: "#contact" },
+    { icon: <BarChart4 size={20} />, label: "Leaderboard", href: "/leaderboard" },
+    { icon: <Mail size={20} />, label: "Contact us", href: "#contact" },
   ];
 
   return (
