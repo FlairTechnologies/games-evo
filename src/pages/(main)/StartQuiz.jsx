@@ -138,7 +138,7 @@ const StartQuiz = () => {
                   onClick={() => navigate("/quiz")}
                 >
                   <span className="relative z-10 font-medium">
-                    Start Earning Now
+                    Start Quiz
                   </span>
                 </Button>
 
