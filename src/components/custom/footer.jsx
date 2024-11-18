@@ -68,9 +68,9 @@ const Footer = () => {
           Contact:{" "}
           <a
             className="text-blue-300 hover:text-blue-200 font-semibold transition-colors"
-            href="mailto:enquiries@africawinner.ng"
+            href="mailto:enquiries@gameevo.ng"
           >
-            enquiries@africawinner.ng
+            enquiries@gameevo.ng
           </a>
         </p>
         <p className="text-sm text-gray-200">
