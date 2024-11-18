@@ -6,9 +6,9 @@ import mtnLogo from "../../../src/assets/images/mtn-logo.png";
 const Footer = () => {
   const navLinks = [
     { href: "/", text: "Home" },
-    { href: "/#about-us", text: "About us" },
     { href: "/#how-to-play", text: "How to play" },
-    { href: "/faqs", text: "FAQs" },
+    { href: "/#FAQ", text: "FAQs" },
+    { href: "mailto:stephenon56@gmail.com", text: "Contact us" },
   ];
 
   const telecomLogos = [
@@ -50,7 +50,7 @@ const Footer = () => {
       </div>
 
       {/* Navigation Links */}
-      <nav className="flex w-full md:w-[60%] justify-evenly py-12 flex-wrap gap-6">
+      <nav className="flex w-[70%] mx-auto md:w-[50%] justify-evenly py-12 flex-wrap gap-6">
         {navLinks.map((link) => (
           <a
             key={link.text}

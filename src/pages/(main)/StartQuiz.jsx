@@ -1,4 +1,3 @@
-import { Navigate } from "react-router-dom";
 import Navbar from "../../components/custom/navbar";
 import { Button } from "../../components/ui/button";
 import {
@@ -16,11 +15,12 @@ import {
   AlertCircle,
   Lightbulb,
 } from "lucide-react";
-import { useNavigate } from 'react-router-dom';
 import React from "react";
+import { Navigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const StartQuiz = () => {
-    const navigate = useNavigate()
+  const navigate = useNavigate();
   const features = [
     {
       icon: <Brain className="h-6 w-6 text-blue-500" />,
@@ -40,7 +40,7 @@ const StartQuiz = () => {
     {
       icon: <Clock className="h-5 w-5 text-blue-500" />,
       title: "Time Management",
-      text: "You'll have 10 minutes to complete all questions",
+      text: "You'll have 2 minutes to complete all questions",
     },
     {
       icon: <CheckCircle className="h-5 w-5 text-green-500" />,
@@ -55,13 +55,13 @@ const StartQuiz = () => {
     {
       icon: <DollarSign className="h-5 w-5 text-emerald-500" />,
       title: "Reward System",
-      text: "Earn $1 for each correct answer",
+      text: "Stand a chance to win cash prices and more",
     },
   ];
 
   return (
     <>
-    <Navbar color={""} theme={""}/>
+      <Navbar color={""} theme={""} />
       <div className="relative min-h-screen bg-gray-50 dark:bg-gray-900">
         {/* Animated Background Pattern */}
         <div className="absolute inset-0 overflow-hidden">
@@ -137,13 +137,11 @@ const StartQuiz = () => {
                   className="relative w-full overflow-hidden bg-orange-500 h-[43px] text-white transition-all hover:bg-orange-600"
                   onClick={() => navigate("/quiz")}
                 >
-                  <span className="relative z-10 font-medium">
-                    Start Quiz
-                  </span>
+                  <span className="relative z-10 font-medium">Start Quiz</span>
                 </Button>
 
                 <p className="text-center text-xs text-gray-500 dark:text-gray-400">
-                  🎯 15 questions • ⏱️ 10 minutes • 💰 Up to $15 in rewards
+                  🎯 7 questions • ⏱️ 2 minutes • 💰 Up to ₦1,000,000 in cash
                 </p>
               </div>
             </CardContent>

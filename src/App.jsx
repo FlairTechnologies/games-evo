@@ -10,6 +10,7 @@ import Footer from "./components/custom/footer";
 import Game from "./pages/(main)/Game";
 import Leadership from "./pages/(main)/Leaderboard";
 import QuizStart from "./pages/(main)/StartQuiz";
+import LandingPage from "./pages/LandingPage";
 import Auth from "./pages/authentication/Auth";
 
 const App = () => {
@@ -22,7 +23,8 @@ const App = () => {
           <Route path="/quiz" element={<Game />} />
           <Route path="/leaderboard" element={<Leadership />} />
           <Route path="/start-quiz" element={<QuizStart />} />
-          <Route path="/" element={<Auth />} />
+          <Route path="/authentication" element={<Auth />} />
+          <Route path="/" element={<LandingPage />} />
         </Routes>
       </BrowserRouter>
 
