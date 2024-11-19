@@ -17,38 +17,38 @@ const TIMER_DURATION = 15; // seconds
 const quizQuestions = [
   {
     id: 1,
-    question: "How would you feel if you could no longer use Netflix?",
+    question: "Brazil is the only team to play in every soccer World Cup tournament",
     options: [
-      { id: "very", label: "Very Disappointed", score: 3 },
-      { id: "somewhat", label: "Somewhat Disappointed", score: 2 },
-      { id: "not", label: "Not Disappointed", score: 1 },
+      { id: "true", label: id, score: 5 },
+      { id: "false", label: id, score: 0 },
+      { id: "skip", label: id, score: 0 },
     ],
   },
   {
     id: 2,
-    question: "How often do you use social media?",
+    question: "Michael Jordan won six NBA championships with the Chicago Bulls",
     options: [
-      { id: "daily", label: "Multiple times daily", score: 3 },
-      { id: "weekly", label: "Few times a week", score: 2 },
-      { id: "rarely", label: "Rarely or never", score: 1 },
+      { id: "true", label: id, score: 5 },
+      { id: "false", label: id, score: 0 },
+      { id: "skip", label: id, score: 0 },
     ],
   },
   {
     id: 3,
-    question: "What's your preferred way of learning?",
+    question: "The Green Bay Packers won the first two Super Bowls (in 1966, 1967 and 1968)?",
     options: [
-      { id: "visual", label: "Visual content", score: 3 },
-      { id: "audio", label: "Audio content", score: 2 },
-      { id: "reading", label: "Reading", score: 1 },
+      { id: "true", label: id, score: 0 },
+      { id: "false", label: id, score: 5 },
+      { id: "skip", label: id, score: 0 },
     ],
   },
   {
     id: 4,
-    question: "How do you prefer to communicate?",
+    question: "Serena Williams has won more tennis grand slam titles than Venus Williams",
     options: [
-      { id: "text", label: "Text/Email", score: 3 },
-      { id: "call", label: "Phone calls", score: 2 },
-      { id: "person", label: "In person", score: 1 },
+      { id: "true", label: id, score: 5 },
+      { id: "false", label: id, score: 0 },
+      { id: "skip", label: id, score: 0 },
     ],
   },
 ];
@@ -123,7 +123,7 @@ const QuizGame = () => {
         ...prev,
         [currentQuestionData.id]: {
           answerId: currentQuestionData.options[2].id,
-          score: 1,
+          score: 0,
         },
       }));
     }
