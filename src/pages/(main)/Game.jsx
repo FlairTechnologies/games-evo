@@ -17,38 +17,41 @@ const TIMER_DURATION = 15; // seconds
 const quizQuestions = [
   {
     id: 1,
-    question: "Brazil is the only team to play in every soccer World Cup tournament",
+    question:
+      "Brazil is the only team to play in every soccer World Cup tournament",
     options: [
-      { id: "true", label: id, score: 5 },
-      { id: "false", label: id, score: 0 },
-      { id: "skip", label: id, score: 0 },
+      { id: "true", label: "True", score: 5 },
+      { id: "false", label: "False", score: 0 },
+      { id: "skip", label: "Skip", score: 0 },
     ],
   },
   {
     id: 2,
     question: "Michael Jordan won six NBA championships with the Chicago Bulls",
     options: [
-      { id: "true", label: id, score: 5 },
-      { id: "false", label: id, score: 0 },
-      { id: "skip", label: id, score: 0 },
+      { id: "true", label: "True", score: 5 },
+      { id: "false", label: "False", score: 0 },
+      { id: "skip", label: "Skip", score: 0 },
     ],
   },
   {
     id: 3,
-    question: "The Green Bay Packers won the first two Super Bowls (in 1966, 1967 and 1968)?",
+    question:
+      "The Green Bay Packers won the first two Super Bowls (in 1966, 1967 and 1968)?",
     options: [
-      { id: "true", label: id, score: 0 },
-      { id: "false", label: id, score: 5 },
-      { id: "skip", label: id, score: 0 },
+      { id: "true", label: "True", score: 0 },
+      { id: "false", label: "False", score: 5 },
+      { id: "skip", label: "Skip", score: 0 },
     ],
   },
   {
     id: 4,
-    question: "Serena Williams has won more tennis grand slam titles than Venus Williams",
+    question:
+      "Serena Williams has won more tennis grand slam titles than Venus Williams",
     options: [
-      { id: "true", label: id, score: 5 },
-      { id: "false", label: id, score: 0 },
-      { id: "skip", label: id, score: 0 },
+      { id: "true", label: "True", score: 5 },
+      { id: "false", label: "False", score: 0 },
+      { id: "skip", label: "Skip", score: 0 },
     ],
   },
 ];
