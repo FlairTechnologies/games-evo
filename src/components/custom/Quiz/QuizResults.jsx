@@ -9,7 +9,7 @@ import {
 import { Share2, Trophy as TrophyIcon, Sparkles } from "lucide-react";
 
 const QuizResults = ({ totalScore, totalQuestions, onRestart }) => {
-  const percentage = (totalScore / (totalQuestions * 3)) * 100;
+  const percentage = (totalScore / (totalQuestions * 5)) * 100;
   
   const getMessage = (percentage) => {
     if (percentage >= 90) return "Outstanding!";
@@ -61,7 +61,7 @@ const QuizResults = ({ totalScore, totalQuestions, onRestart }) => {
                   <p className="text-5xl font-bold text-gray-800">
                     {totalScore}
                     <span className="text-2xl text-gray-500">
-                      /{totalQuestions * 3}
+                      /{totalQuestions * 5}
                     </span>
                   </p>
                 </div>
