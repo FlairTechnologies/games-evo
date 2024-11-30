@@ -1,16 +1,12 @@
-import React from "react";
 import Trophy from "../../../assets/images/trophy.jpg";
 import { Button } from "../../../components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-} from "../../../components/ui/card";
-import { Share2, Trophy as TrophyIcon, Sparkles } from "lucide-react";
+import { Card, CardContent } from "../../../components/ui/card";
+import { Share2, Sparkles } from "lucide-react";
+import React from "react";
 
 const QuizResults = ({ totalScore, totalQuestions, onRestart }) => {
   const percentage = (totalScore / (totalQuestions * 5)) * 100;
-  
+
   const getMessage = (percentage) => {
     if (percentage >= 90) return "Outstanding!";
     if (percentage >= 70) return "Great Job!";
@@ -23,13 +19,13 @@ const QuizResults = ({ totalScore, totalQuestions, onRestart }) => {
       <Card className="w-full max-w-2xl bg-white/95 backdrop-blur-sm shadow-xl border-0 overflow-hidden">
         <div className="md:flex items-center gap-8 p-6">
           {/* Trophy Section */}
-          <div className="flex-shrink-0 w-full md:w-1/2 mb-8 md:mb-0">
+          <div className={`flex-shrink-0 w-full md:w-1/2 mb-8 md:mb-0 ${percentage != 100 ? "hidden" : ""}`}>
             <div className="relative group">
               <div className="absolute inset-0 bg-gradient-to-t from-pink-200/20 to-transparent rounded-2xl transition-all duration-300 group-hover:from-pink-300/30" />
-              <img 
-                src={Trophy} 
-                alt="victory"
-                className="w-full h-[350px] object-cover rounded-2xl shadow-md transition-transform duration-300 group-hover:scale-[1.02]" 
+              <img
+                src={Trophy}
+                alt="Trophy symbolizing your achievement"
+                className="w-full h-[350px] object-cover rounded-2xl shadow-md transition-transform duration-300 group-hover:scale-[1.02]"
               />
             </div>
           </div>
@@ -57,7 +53,6 @@ const QuizResults = ({ totalScore, totalQuestions, onRestart }) => {
                   Final Score
                 </p>
                 <div className="flex items-center justify-center gap-2">
-                  {/* <TrophyIcon className="w-8 h-8 text-yellow-500" /> */}
                   <p className="text-5xl font-bold text-gray-800">
                     {totalScore}
                     <span className="text-2xl text-gray-500">
@@ -72,9 +67,7 @@ const QuizResults = ({ totalScore, totalQuestions, onRestart }) => {
 
               {/* Action Buttons */}
               <div className="flex items-center justify-center gap-4 pt-4">
-                <Button 
-                  className="group bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-6 rounded-xl transition-all duration-300 hover:shadow-md"
-                >
+                <Button className="group bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-6 rounded-xl transition-all duration-300 hover:shadow-md">
                   <Share2 className="w-5 h-5 transition-transform duration-300 group-hover:scale-110" />
                 </Button>
                 <Button
