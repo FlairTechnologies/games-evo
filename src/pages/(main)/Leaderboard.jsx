@@ -6,8 +6,10 @@ import {
   CardHeader,
   CardTitle,
 } from "../../components/ui/card";
+import { Token } from "../../constants";
+import axios from "axios";
 import { Trophy, Medal, Award } from "lucide-react";
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 const maskNumber = (number) => {
   const str = number.toString();
@@ -60,14 +62,35 @@ const LeaderboardRow = ({ user, position, points, isHeader }) => {
 };
 
 const Leaderboard = () => {
-  const Leaders = [
-    { id: 1, user: "07081732019", position: 1, points: 50000 },
-    { id: 2, user: "07081732019", position: 2, points: 45000 },
-    { id: 3, user: "07081732019", position: 3, points: 40000 },
-    { id: 4, user: "07081732019", position: 4, points: 35000 },
-    { id: 5, user: "07081732019", position: 5, points: 30000 },
-    { id: 6, user: "07081732019", position: 6, points: 25000 },
-  ];
+  const [leaders, setLeaders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchLeaders = async () => {
+      try {
+        const response = await axios.get("http://13.40.31.183:3600/api/board", {
+          headers: { Authorization: "Bearer " + Token },
+        });
+
+        // Map the data to match the structure of your existing Leaders array
+        const formattedLeaders = response.data.board.map((item, index) => ({
+          id: item._id,
+          user: item.account.phone,
+          position: index + 1, // Calculate position based on the array index
+          points: item.points,
+        }));
+
+        setLeaders(formattedLeaders);
+      } catch (err) {
+        setError(err.response ? err.response.data.message : err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLeaders();
+  }, []);
 
   return (
     <>
@@ -82,7 +105,7 @@ const Leaderboard = () => {
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 to-black/70" />
 
         <Card className="w-full max-w-3xl relative bg-white/95 backdrop-blur-md shadow-2xl">
-          <CardHeader className="card-header p-0 text-center rounded-t-xl ">
+          <CardHeader className="card-header p-0 text-center rounded-t-xl">
             <div className="space-y-2 bg-gradient-to-r from-blue-600/80 to-blue-800/80 w-full h-full rounded-tr-xl rounded-tl-xl grid place-content-center">
               <h1 className="text-5xl md:text-6xl font-bold text-white tracking-tight">
                 Leaderboard
@@ -93,23 +116,29 @@ const Leaderboard = () => {
 
           <CardContent className="p-6">
             <div className="rounded-xl overflow-hidden shadow-sm">
-              <ul className="divide-y divide-gray-100">
-                <LeaderboardRow
-                  user=""
-                  position={0}
-                  points=""
-                  isHeader={true}
-                />
-                {Leaders.map((list) => (
+              {loading ? (
+                <p className="text-center text-gray-500">Loading...</p>
+              ) : error ? (
+                <p className="text-center text-red-500">{error}</p>
+              ) : (
+                <ul className="divide-y divide-gray-100">
                   <LeaderboardRow
-                    key={list.id}
-                    user={list.user}
-                    position={list.position}
-                    points={list.points}
-                    isHeader={false}
+                    user=""
+                    position={0}
+                    points=""
+                    isHeader={true}
                   />
-                ))}
-              </ul>
+                  {leaders.slice(0, 6).map((list) => (
+                    <LeaderboardRow
+                      key={list.id}
+                      user={list.user}
+                      position={list.position}
+                      points={list.points}
+                      isHeader={false}
+                    />
+                  ))}
+                </ul>
+              )}
             </div>
           </CardContent>
         </Card>
