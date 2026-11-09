@@ -3,76 +3,28 @@ import QuizOptions from "../../components/custom/Quiz/QuizOptions";
 import QuizProgress from "../../components/custom/Quiz/QuizProgress";
 import QuizResults from "../../components/custom/Quiz/QuizResults";
 import QuizTimer from "../../components/custom/Quiz/QuizTimer";
+import Loader from "../../components/custom/loader";
 import Navbar from "../../components/custom/navbar";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "../../components/ui/card";
-import React, { useEffect, useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
+import useCustomToast from "../../hooks/use-custom-toast";
+import { api } from "../../lib/api";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
-const TIMER_DURATION = 15; // seconds
-
-const quizQuestions = [
-  {
-    id: 1,
-    question:
-      "Brazil is the only team to play in every soccer World Cup tournament",
-    options: [
-      { id: "true", label: "True", score: 5 },
-      { id: "false", label: "False", score: 0 },
-      { id: "skip", label: "Skip", score: 0 },
-    ],
-  },
-  {
-    id: 2,
-    question: "Michael Jordan won six NBA championships with the Chicago Bulls",
-    options: [
-      { id: "true", label: "True", score: 5 },
-      { id: "false", label: "False", score: 0 },
-      { id: "skip", label: "Skip", score: 0 },
-    ],
-  },
-  {
-    id: 3,
-    question:
-      "The Green Bay Packers won the first two Super Bowls (in 1966, 1967 and 1968)?",
-    options: [
-      { id: "true", label: "True", score: 0 },
-      { id: "false", label: "False", score: 5 },
-      { id: "skip", label: "Skip", score: 0 },
-    ],
-  },
-  {
-    id: 4,
-    question:
-      "Serena Williams has won more tennis grand slam titles than Venus Williams",
-    options: [
-      { id: "true", label: "True", score: 5 },
-      { id: "false", label: "False", score: 0 },
-      { id: "skip", label: "Skip", score: 0 },
-    ],
-  },
-];
+const SKIP_OPTION_ID = "skip";
+const TICK_MS = 250;
 
 const QuizLayout = ({ children }) => {
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-gradient-to-b from-pink-50 to-pink-100">
-      {/* Decorative background elements */}
       <div className="absolute inset-0">
-        {/* Top decorative circles */}
         <div className="absolute -top-24 -left-24 h-96 w-96 rounded-full bg-pink-200/30 blur-3xl" />
         <div className="absolute -top-12 -right-12 h-64 w-64 rounded-full bg-red-100/40 blur-2xl" />
-
-        {/* Bottom gradient overlay */}
         <div className="absolute bottom-0 left-0 right-0">
           <div className="h-96 bg-gradient-to-t from-pink-200/50 via-pink-100/30 to-transparent" />
           <div className="h-32 bg-gradient-to-t from-red-900/10 to-transparent" />
         </div>
       </div>
-
-      {/* Main content container */}
       <div className="relative flex min-h-screen items-center justify-center p-4">
         <Card className="w-full max-w-2xl transform transition-all duration-300 hover:shadow-lg bg-white/95 backdrop-blur-md relative border-0 shadow-xl">
           <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-pink-50/50 via-white/80 to-pink-50/50" />
@@ -83,145 +35,151 @@ const QuizLayout = ({ children }) => {
   );
 };
 
+/** Seconds left on the server's deadline, corrected for the gap between our clock and the server's. */
+function secondsRemaining(deadlineAt, clockOffsetMs) {
+  const msLeft = new Date(deadlineAt).getTime() - (Date.now() + clockOffsetMs);
+  return Math.max(0, Math.ceil(msLeft / 1000));
+}
+
+const offsetFrom = (game) => new Date(game.serverTime).getTime() - Date.now();
+
+/**
+ * The server owns the game: it chooses questions, holds the answers, enforces
+ * deadlines and scores. This screen only renders the current question, counts
+ * down to the server deadline and submits the player's choice.
+ */
 const QuizGame = () => {
-  // State management
-  const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [answers, setAnswers] = useState({});
-  const [showResults, setShowResults] = useState(false);
-  const [totalScore, setTotalScore] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(TIMER_DURATION);
-  const [isTimerActive, setIsTimerActive] = useState(true);
-  const [disabled, setDisabled] = useState(true);
+  const { gameId } = useParams();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const toast = useCustomToast();
 
-  // Timer management
-  useEffect(() => {
-    let timer;
-    if (isTimerActive && timeLeft > 0 && !showResults) {
-      timer = setInterval(() => {
-        setTimeLeft((prev) => prev - 1);
-      }, 1000);
-    } else if (timeLeft === 0 && !showResults) {
-      handleTimeUp();
+  const initial = location.state?.game?.id === gameId ? location.state.game : null;
+  const [game, setGame] = useState(initial);
+  const [clockOffsetMs, setClockOffsetMs] = useState(() => (initial ? offsetFrom(initial) : 0));
+  const [selected, setSelected] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(0);
+  // Positions already auto-submitted on timeout, so the timer can't double-fire.
+  const timedOutPositions = useRef(new Set());
+
+  const applyGame = useCallback((next) => {
+    setGame(next);
+    setClockOffsetMs(offsetFrom(next));
+    setSelected(null);
+  }, []);
+
+  const reload = useCallback(async () => {
+    try {
+      applyGame(await api.getGame(gameId));
+    } catch (err) {
+      toast({ variant: "error", title: "Game unavailable", description: err.message });
+      navigate("/start-quiz", { replace: true });
     }
+    // toast is recreated each render; excluding it avoids refetch loops.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gameId, applyGame, navigate]);
 
+  useEffect(() => {
+    if (!initial) void reload();
+    // Only on mount / when the game id changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gameId]);
+
+  const question = game?.status === "ACTIVE" ? game.currentQuestion : null;
+
+  const submit = useCallback(
+    async (optionId) => {
+      if (!question || isSubmitting) return;
+      setIsSubmitting(true);
+      try {
+        const { answer, game: next } = await api.submitAnswer(gameId, question.position, optionId);
+        if (answer.timedOut && optionId) {
+          toast({ variant: "warning", title: "Time's up!", description: "That answer arrived after the timer ran out." });
+        }
+        applyGame(next);
+      } catch (err) {
+        if (err.code === "GAME_BUSY") return; // the earlier submission is still being handled
+        if (["ANSWER_OUT_OF_ORDER", "GAME_NOT_ACTIVE"].includes(err.code)) {
+          await reload();
+          return;
+        }
+        toast({ variant: "error", title: "Couldn't submit answer", description: err.message });
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [gameId, question, isSubmitting, applyGame, reload],
+  );
+
+  // Countdown derived from the server deadline. When it hits zero we submit a
+  // skip; the server would record the question as timed out regardless.
+  useEffect(() => {
+    if (!question) return undefined;
+    const tick = () => {
+      const left = secondsRemaining(question.deadlineAt, clockOffsetMs);
+      setTimeLeft(left);
+      if (left === 0 && !timedOutPositions.current.has(question.position)) {
+        timedOutPositions.current.add(question.position);
+        void submit(null);
+      }
+    };
+    tick();
+    const timer = setInterval(tick, TICK_MS);
     return () => clearInterval(timer);
-  }, [timeLeft, isTimerActive, showResults]);
+  }, [question, clockOffsetMs, submit]);
 
-  // Button disable state management
-  useEffect(() => {
-    const currentAnswer = answers[quizQuestions[currentQuestion]?.id];
-    setDisabled(!currentAnswer);
-  }, [answers, currentQuestion]);
+  if (!game) return <Loader />;
 
-  // Timer handlers
-  const resetTimer = () => {
-    setTimeLeft(TIMER_DURATION);
-    setIsTimerActive(true);
-  };
-
-  const handleTimeUp = () => {
-    const currentQuestionData = quizQuestions[currentQuestion];
-    if (!answers[currentQuestionData.id]) {
-      setAnswers((prev) => ({
-        ...prev,
-        [currentQuestionData.id]: {
-          answerId: currentQuestionData.options[2].id,
-          score: 0,
-        },
-      }));
-    }
-    handleNext();
-  };
-
-  // Quiz navigation handlers
-  const handleAnswer = (value) => {
-    const currentQuestionData = quizQuestions[currentQuestion];
-    const selectedOption = currentQuestionData.options.find(
-      (opt) => opt.id === value
-    );
-
-    setAnswers((prev) => ({
-      ...prev,
-      [currentQuestionData.id]: {
-        answerId: value,
-        score: selectedOption.score,
-      },
-    }));
-  };
-
-  const handleNext = () => {
-    if (currentQuestion < quizQuestions.length - 1) {
-      setCurrentQuestion((prev) => prev + 1);
-      resetTimer();
-    } else {
-      const finalScore = Object.values(answers).reduce(
-        (sum, answer) => sum + answer.score,
-        0
-      );
-      setTotalScore(finalScore);
-      setShowResults(true);
-      setIsTimerActive(false);
-    }
-  };
-
-  const handlePrevious = () => {
-    if (currentQuestion > 0) {
-      setCurrentQuestion((prev) => prev - 1);
-      resetTimer();
-    }
-  };
-
-  const handleRestart = () => {
-    setCurrentQuestion(0);
-    setAnswers({});
-    setShowResults(false);
-    setTotalScore(0);
-    resetTimer();
-  };
-
-  // Render results page
-  if (showResults) {
+  if (game.status !== "ACTIVE" && game.result) {
     return (
       <>
         <Navbar theme="dark" />
         <QuizResults
-          totalScore={totalScore}
-          totalQuestions={quizQuestions.length}
-          onRestart={handleRestart}
+          score={game.result.score}
+          maxScore={game.result.maxScore}
+          correctCount={game.result.correctCount}
+          questionCount={game.result.questionCount}
+          expired={game.status === "EXPIRED"}
+          onPlayAgain={() => navigate("/start-quiz")}
+          onViewLeaderboard={() => navigate("/leaderboard")}
         />
       </>
     );
   }
 
-  // Render quiz page
+  if (!question) return <Loader />;
+
+  const options = [
+    ...question.options,
+    ...(game.rules.allowSkip ? [{ id: SKIP_OPTION_ID, label: "Skip" }] : []),
+  ];
+  const isLast = question.position === game.rules.questionCount - 1;
+
   return (
     <QuizLayout>
       <CardHeader className="relative z-10">
         <div className="w-full flex items-center justify-between mb-4">
-          <QuizProgress
-            questions={quizQuestions}
-            currentQuestion={currentQuestion}
-          />
-          <QuizTimer timeLeft={timeLeft} duration={TIMER_DURATION} />
+          <QuizProgress total={game.rules.questionCount} current={question.position} />
+          <QuizTimer timeLeft={timeLeft} duration={game.rules.secondsPerQuestion} />
         </div>
 
-        <CardTitle className="text-2xl font-bold text-center">
-          {quizQuestions[currentQuestion].question}
-        </CardTitle>
+        <CardTitle className="text-2xl font-bold text-center">{question.prompt}</CardTitle>
       </CardHeader>
 
       <CardContent className="relative z-10 space-y-6 mt-7">
         <QuizOptions
-          options={quizQuestions[currentQuestion].options}
-          selectedAnswer={answers[quizQuestions[currentQuestion].id]?.answerId}
-          onAnswerSelect={handleAnswer}
+          options={options}
+          selectedAnswer={selected}
+          onAnswerSelect={(id) => !isSubmitting && setSelected(id)}
         />
 
         <QuizNavigation
-          onPrevious={handlePrevious}
-          onNext={handleNext}
-          isFirstQuestion={currentQuestion === 0}
-          disabled={disabled}
+          onNext={() => submit(selected === SKIP_OPTION_ID ? null : selected)}
+          disabled={!selected || isSubmitting || timeLeft === 0}
+          isLast={isLast}
+          isSubmitting={isSubmitting}
         />
       </CardContent>
     </QuizLayout>

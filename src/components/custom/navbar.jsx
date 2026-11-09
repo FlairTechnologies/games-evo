@@ -11,12 +11,30 @@ import {
   Star,
   Rocket,
   Volleyball,
+  LogOut,
 } from "lucide-react";
 import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+
+// Internal routes use client-side navigation so the in-memory session survives;
+// external targets (mailto:) still need a plain anchor.
+const NavLink = ({ href, children, ...rest }) =>
+  href.startsWith("/") ? (
+    <Link to={href} {...rest}>
+      {children}
+    </Link>
+  ) : (
+    <a href={href} {...rest}>
+      {children}
+    </a>
+  );
 
 const Navbar = ({ theme, color }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const { status, logout } = useAuth();
+  const navigate = useNavigate();
 
   // Handle scroll effect
   useEffect(() => {
@@ -33,14 +51,20 @@ const Navbar = ({ theme, color }) => {
 
   const navItems = [
     { icon: <Home size={20} />, label: "Home", href: "/" },
-    { icon: <Volleyball size={20} />, label: "Start Quiz", href: "/authentication" },
+    { icon: <Volleyball size={20} />, label: "Start Quiz", href: "/start-quiz" },
     {
       icon: <BarChart4 size={20} />,
       label: "Leaderboard",
       href: "/leaderboard",
     },
-    { icon: <Mail size={20} />, label: "Contact us", href: "mailto:stephenon56@gmail.com" },
+    { icon: <Mail size={20} />, label: "Contact us", href: "mailto:enquiries@gameevo.ng" },
   ];
+
+  const handleLogout = async () => {
+    setIsSidebarOpen(false);
+    await logout();
+    navigate("/");
+  };
 
   return (
     <>
@@ -52,26 +76,26 @@ const Navbar = ({ theme, color }) => {
           <div className="flex items-center justify-between h-20">
             {/* Logo */}
             <div className="hidden md:block flex-shrink-0 transition-transform duration-300 hover:scale-105">
-              <a href="/" className="flex items-center">
+              <Link to="/" className="flex items-center">
                 <img
                   src={theme === "light" ? LogoLight : Logo}
                   alt="logo"
                   className="w-[170px] md:mt-[-10px] md:ml-[-28px] transform transition-all"
                 />
-              </a>
+              </Link>
             </div>
 
             {/* Desktop Navigation */}
             <div className="hidden items-center space-x-8">
               {navItems.map((item, index) => (
-                <a
+                <NavLink
                   key={index}
                   href={item.href}
                   className={`flex items-center gap-2 text-${color} hover:text-blue-500 transition-colors duration-200 text-sm font-medium`}
                 >
                   {item.icon}
                   <span>{item.label}</span>
-                </a>
+                </NavLink>
               ))}
             </div>
 
@@ -126,7 +150,7 @@ const Navbar = ({ theme, color }) => {
         {/* Sidebar Content */}
         <div className="py-4 space-y-2 max-h-[calc(100vh-100px)] overflow-y-auto">
           {navItems.map((item, index) => (
-            <a
+            <NavLink
               key={index}
               href={item.href}
               onClick={toggleSidebar}
@@ -148,8 +172,24 @@ const Navbar = ({ theme, color }) => {
                   className="text-purple-400 dark:text-purple-600 group-hover:translate-x-1 transition-transform"
                 />
               </div>
-            </a>
+            </NavLink>
           ))}
+          {status === "authenticated" ? (
+            <button type="button" onClick={handleLogout} className="block w-full text-left px-6 py-3 group">
+              <div className="flex items-center justify-between bg-white dark:bg-gray-800 p-4 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:scale-105 hover:translate-x-2">
+                <div className="flex items-center gap-4">
+                  <div className="bg-purple-100 dark:bg-purple-900 p-3 rounded-full group-hover:animate-pulse">
+                    <span className="text-purple-600 dark:text-purple-300">
+                      <LogOut size={20} />
+                    </span>
+                  </div>
+                  <span className="font-semibold text-purple-700 dark:text-purple-200 group-hover:text-pink-600 transition-colors">
+                    Log out
+                  </span>
+                </div>
+              </div>
+            </button>
+          ) : null}
         </div>
 
         {/* Playful Footer */}

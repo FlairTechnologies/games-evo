@@ -15,12 +15,54 @@ import {
   AlertCircle,
   Lightbulb,
 } from "lucide-react";
-import React from "react";
-import { Navigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import useCustomToast from "../../hooks/use-custom-toast";
+import { api } from "../../lib/api";
+
+const MODE_CODE = "classic";
 
 const StartQuiz = () => {
   const navigate = useNavigate();
+  const toast = useCustomToast();
+  const [mode, setMode] = useState(null);
+  const [entitlement, setEntitlement] = useState(null);
+  const [loadError, setLoadError] = useState(null);
+  const [isStarting, setIsStarting] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    Promise.all([api.gameModes(), api.entitlement()])
+      .then(([modes, ent]) => {
+        if (cancelled) return;
+        setMode(modes.find((m) => m.code === MODE_CODE) ?? modes[0] ?? null);
+        setEntitlement(ent);
+      })
+      .catch((err) => !cancelled && setLoadError(err.message));
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const handleStart = async () => {
+    setIsStarting(true);
+    try {
+      const game = await api.startGame(mode?.code);
+      navigate(`/quiz/${game.id}`, { state: { game } });
+    } catch (err) {
+      if (err.code === "ACTIVE_GAME_EXISTS" && err.details?.gameId) {
+        toast({ variant: "info", title: "Resuming your game", description: "You already have a game in progress." });
+        navigate(`/quiz/${err.details.gameId}`);
+        return;
+      }
+      toast({ variant: "error", title: "Couldn't start the quiz", description: err.message });
+      if (err.code === "NO_PLAYS_REMAINING") setEntitlement((e) => (e ? { ...e, remaining: 0 } : e));
+      setIsStarting(false);
+    }
+  };
+
+  const playsLeft = entitlement?.remaining ?? 0;
+  const canStart = Boolean(mode) && playsLeft > 0 && !isStarting;
   const features = [
     {
       icon: <Brain className="h-6 w-6 text-blue-500" />,
@@ -39,13 +81,17 @@ const StartQuiz = () => {
   const instructions = [
     {
       icon: <Clock className="h-5 w-5 text-blue-500" />,
-      title: "Time Management",
-      text: "You'll have 2 minutes to complete all questions",
+      title: "Beat the Clock",
+      text: mode
+        ? `You'll have ${mode.secondsPerQuestion} seconds to answer each question`
+        : "Each question is timed",
     },
     {
       icon: <CheckCircle className="h-5 w-5 text-green-500" />,
-      title: "Answer All Questions",
-      text: "Each question must be answered to proceed",
+      title: "Score Points",
+      text: mode
+        ? `Earn ${mode.pointsCorrect} points for every correct answer${mode.allowSkip ? " — or skip if unsure" : ""}`
+        : "Earn points for every correct answer",
     },
     {
       icon: <AlertCircle className="h-5 w-5 text-orange-500" />,
@@ -133,22 +179,31 @@ const StartQuiz = () => {
               </div>
 
               <div className="space-y-4">
+                {loadError ? (
+                  <p className="text-center text-sm text-red-600">{loadError}</p>
+                ) : null}
                 <Button
-                  className="relative w-full overflow-hidden bg-orange-500 h-[43px] text-white transition-all hover:bg-orange-600"
-                  onClick={() => navigate("/quiz")}
+                  className="relative w-full overflow-hidden bg-orange-500 h-[43px] text-white transition-all hover:bg-orange-600 disabled:bg-gray-300"
+                  onClick={handleStart}
+                  disabled={!canStart}
                 >
-                  <span className="relative z-10 font-medium">Start Quiz</span>
+                  <span className="relative z-10 font-medium">
+                    {isStarting ? "Starting..." : entitlement && playsLeft === 0 ? "No plays left today" : "Start Quiz"}
+                  </span>
                 </Button>
 
-                <p className="text-center text-xs text-gray-500 dark:text-gray-400">
-                  🎯 7 questions • ⏱️ 2 minutes • 💰 Up to ₦1,000,000 in cash
-                </p>
+                {mode ? (
+                  <p className="text-center text-xs text-gray-500 dark:text-gray-400">
+                    🎯 {mode.questionCount} questions • ⏱️ {mode.secondsPerQuestion}s each • 🏆 Up to {mode.maxScore} points
+                    {entitlement ? ` • 🎟️ ${playsLeft} of ${entitlement.granted} plays left today` : ""}
+                  </p>
+                ) : null}
               </div>
             </CardContent>
           </Card>
         </div>
 
-        <style jsx>{`
+        <style>{`
           @keyframes blob {
             0% {
               transform: translate(0px, 0px) scale(1);

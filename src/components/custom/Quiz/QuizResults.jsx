@@ -1,11 +1,11 @@
 import Trophy from "../../../assets/images/trophy.jpg";
 import { Button } from "../../../components/ui/button";
 import { Card, CardContent } from "../../../components/ui/card";
-import { Share2, Sparkles } from "lucide-react";
+import { BarChart4, Sparkles } from "lucide-react";
 import React from "react";
 
-const QuizResults = ({ totalScore, totalQuestions, onRestart }) => {
-  const percentage = (totalScore / (totalQuestions * 5)) * 100;
+const QuizResults = ({ score, maxScore, correctCount, questionCount, expired, onPlayAgain, onViewLeaderboard }) => {
+  const percentage = maxScore > 0 ? (score / maxScore) * 100 : 0;
 
   const getMessage = (percentage) => {
     if (percentage >= 90) return "Outstanding!";
@@ -38,7 +38,7 @@ const QuizResults = ({ totalScore, totalQuestions, onRestart }) => {
                 <div className="flex items-center justify-center gap-2 mb-2">
                   <Sparkles className="w-6 h-6 text-yellow-500 animate-pulse" />
                   <h1 className="text-4xl font-bold bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent">
-                    Quiz Complete!
+                    {expired ? "Time's Up!" : "Quiz Complete!"}
                   </h1>
                   <Sparkles className="w-6 h-6 text-yellow-500 animate-pulse" />
                 </div>
@@ -54,24 +54,28 @@ const QuizResults = ({ totalScore, totalQuestions, onRestart }) => {
                 </p>
                 <div className="flex items-center justify-center gap-2">
                   <p className="text-5xl font-bold text-gray-800">
-                    {totalScore}
+                    {score}
                     <span className="text-2xl text-gray-500">
-                      /{totalQuestions * 5}
+                      /{maxScore}
                     </span>
                   </p>
                 </div>
                 <p className="text-md text-gray-600">
-                  {percentage.toFixed(1)}% Accuracy
+                  {correctCount} of {questionCount} correct · {percentage.toFixed(1)}%
                 </p>
               </div>
 
               {/* Action Buttons */}
               <div className="flex items-center justify-center gap-4 pt-4">
-                <Button className="group bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-6 rounded-xl transition-all duration-300 hover:shadow-md">
-                  <Share2 className="w-5 h-5 transition-transform duration-300 group-hover:scale-110" />
+                <Button
+                  onClick={onViewLeaderboard}
+                  aria-label="View leaderboard"
+                  className="group bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-6 rounded-xl transition-all duration-300 hover:shadow-md"
+                >
+                  <BarChart4 className="w-5 h-5 transition-transform duration-300 group-hover:scale-110" />
                 </Button>
                 <Button
-                  onClick={onRestart}
+                  onClick={onPlayAgain}
                   className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white px-8 py-6 rounded-xl font-medium transition-all duration-300 hover:shadow-md"
                 >
                   Take Quiz Again
